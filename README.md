@@ -23,11 +23,11 @@ TODO: gif demo
   config = function()
     -- The following is necessary only if you'd like to change any of the defaults:
     require('ssh').setup({
-      -- Whether to rename newly created tabs with the remote host name
-      auto_rename_tab = true
+      -- Whether to automically rename the buffer the connection is made on to the hostname
+      auto_rename_buf = true
     })
 
-    vim.keymap.set('n', '<leader>ss', '<CMD>Telescope ssh<CR>', {desc = 'Open an [S]SH connection in a new tab'})
+    vim.keymap.set('n', '<leader>ss', '<CMD>Telescope ssh<CR>', {desc = 'Open an [S]SH connection'})
   end
 }
 ```

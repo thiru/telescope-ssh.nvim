@@ -9,7 +9,7 @@ local u = require('ssh.utils')
 local M = {}
 
 M.config = {
-  auto_rename_tab = true,
+  auto_rename_buf = true,
 }
 
 M.setup = function(opts)
@@ -76,7 +76,7 @@ M.parse_hosts = function()
   return hosts
 end
 
-M.rename_tab = function(name)
+M.rename_buf = function(name)
   -- Adding spaces around name to avoid collision with a path which may exist locally
   local safe_name = ' ' .. name .. ' '
 
@@ -113,8 +113,8 @@ M.open_in_current_buf = function()
     vim.fn.termopen('ssh ' .. host)
   end
 
-  if (M.config.auto_rename_tab) then
-    M.rename_tab(host)
+  if (M.config.auto_rename_buf) then
+    M.rename_buf(host)
   end
 
   vim.schedule(function()
@@ -128,8 +128,8 @@ M.open_in_new_tab = function()
   vim.cmd.tabnew()
   vim.fn.termopen('ssh ' .. host)
 
-  if (M.config.auto_rename_tab) then
-    M.rename_tab(host)
+  if (M.config.auto_rename_buf) then
+    M.rename_buf(host)
   end
 
   vim.schedule(function()
