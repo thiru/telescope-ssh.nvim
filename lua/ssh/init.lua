@@ -98,13 +98,40 @@ M.get_user_sel_host = function()
   return host
 end
 
-M.open_in_new_tab = function()
+M.open_in_current_buf = function()
   local host = M.get_user_sel_host()
-  vim.cmd.tabnew()
-  vim.fn.termopen('ssh ' .. host)
+
+  local terminal_job_id = vim.fn.getbufvar(vim.fn.bufnr(), 'terminal_job_id')
+
+  if type(terminal_job_id) == 'number' then
+    vim.schedule(function()
+      local keys = vim.api.nvim_replace_termcodes('ssh "' .. host .. '"<CR>', true, true, true)
+      vim.api.nvim_feedkeys(keys, 'n', false)
+    end)
+  else
+    -- NOTE: this will fail if the buffer is modified
+    vim.fn.termopen('ssh ' .. host)
+  end
+
   if (M.config.auto_rename_tab) then
     M.rename_tab(host)
   end
+
+  vim.schedule(function()
+    vim.cmd.startinsert()
+  end)
+end
+
+M.open_in_new_tab = function()
+  local host = M.get_user_sel_host()
+
+  vim.cmd.tabnew()
+  vim.fn.termopen('ssh ' .. host)
+
+  if (M.config.auto_rename_tab) then
+    M.rename_tab(host)
+  end
+
   vim.schedule(function()
     vim.cmd.startinsert()
   end)
@@ -127,12 +154,14 @@ M.picker = function(opts)
       results = M.parse_hosts()
     }),
     sorter = tconf.generic_sorter(opts),
-    -- Default action and tab action both open in a new tab
     attach_mappings = function(prompt_bufnr, _)
+      -- Open in the current buffer
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
-        M.open_in_new_tab()
+        M.open_in_current_buf()
       end)
+
+      -- Open in a new tab
       actions.select_tab:replace(function()
         actions.close(prompt_bufnr)
         M.open_in_new_tab()
