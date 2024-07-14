@@ -22,6 +22,13 @@ TODO: gif demo
   depedencies = {'nvim-telescope/telescope.nvim'},
   config = function()
     require('telescope').load_extension('ssh')
+
+    -- The following is necessary only if you'd like to change any of the defaults:
+    require('ssh').setup({
+      -- Whether to rename newly created tabs with the remote host name
+      rename_tab = true
+    })
+
     vim.keymap.set('n', '<leader>ss', '<CMD>Telescope ssh<CR>', {desc = 'Open an [S]SH connection in a new tab'})
   end
 }

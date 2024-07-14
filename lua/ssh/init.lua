@@ -7,11 +7,13 @@ local themes = require("telescope.themes")
 local u = require('ssh.utils')
 
 local M = {
-  opts = {}
+  opts = {
+    rename_tab = true,
+  }
 }
 
 M.setup = function(opts)
-  M.opts = opts -- TODO: make use of opts
+  M.opts = vim.tbl_deep_extend('force', M.opts, opts)
 
   vim.api.nvim_create_user_command(
     'TelescopeSsh',
@@ -74,7 +76,6 @@ M.parse_hosts = function()
   return hosts
 end
 
--- TODO: make tab renaming a configurable option
 M.rename_tab = function(name)
   -- Adding spaces around name to avoid collision with a path which may exist locally
   local safe_name = ' ' .. name .. ' '
@@ -105,7 +106,9 @@ M.picker = function(opts)
         end
         vim.cmd.tabnew()
         vim.fn.termopen('ssh ' .. host)
-        M.rename_tab(host)
+        if (M.opts.rename_tab) then
+          M.rename_tab(host)
+        end
         vim.schedule(function()
           vim.cmd.startinsert()
         end)
