@@ -1,18 +1,18 @@
 local action_state = require('telescope.actions.state')
 local actions = require('telescope.actions')
-local conf = require('telescope.config').values
+local tconf = require('telescope.config').values
 local finders = require('telescope.finders')
 local pickers = require('telescope.pickers')
 local u = require('ssh.utils')
 
-local M = {
-  opts = {
-    rename_tab = true,
-  }
+local M = {}
+
+M.config = {
+  auto_rename_tab = true,
 }
 
 M.setup = function(opts)
-  M.opts = vim.tbl_deep_extend('force', M.opts, opts)
+  M.config = vim.tbl_deep_extend('force', M.config, opts)
 
   vim.api.nvim_create_user_command(
     'TelescopeSsh',
@@ -90,7 +90,7 @@ M.picker = function(opts)
     finder = finders.new_table({
       results = M.parse_hosts()
     }),
-    sorter = conf.generic_sorter(opts),
+    sorter = tconf.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, _)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
@@ -103,7 +103,7 @@ M.picker = function(opts)
         end
         vim.cmd.tabnew()
         vim.fn.termopen('ssh ' .. host)
-        if (M.opts.rename_tab) then
+        if (M.config.auto_rename_tab) then
           M.rename_tab(host)
         end
         vim.schedule(function()
