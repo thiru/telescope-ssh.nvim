@@ -1,3 +1,4 @@
+local telescope = require('telescope')
 local action_state = require('telescope.actions.state')
 local actions = require('telescope.actions')
 local tconf = require('telescope.config').values
@@ -13,6 +14,8 @@ M.config = {
 
 M.setup = function(opts)
   M.config = vim.tbl_deep_extend('force', M.config, opts)
+
+  telescope.load_extension('ssh')
 
   vim.api.nvim_create_user_command(
     'TelescopeSsh',

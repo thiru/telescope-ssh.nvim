@@ -21,8 +21,6 @@ TODO: gif demo
   'thiru/telescope-ssh.nvim',
   depedencies = {'nvim-telescope/telescope.nvim'},
   config = function()
-    require('telescope').load_extension('ssh')
-
     -- The following is necessary only if you'd like to change any of the defaults:
     require('ssh').setup({
       -- Whether to rename newly created tabs with the remote host name
