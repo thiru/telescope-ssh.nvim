@@ -85,6 +85,19 @@ M.rename_tab = function(name)
   pcall(function() vim.api.nvim_buf_set_name(0, safe_name) end)
 end
 
+M.get_user_sel_host = function()
+  local selection = action_state.get_selected_entry()
+  local host = ''
+
+  if selection == nil then
+    host = action_state.get_current_line()
+  else
+    host = selection[1]
+  end
+
+  return host
+end
+
 M.picker = function(opts)
   opts = opts or {}
 
@@ -97,18 +110,20 @@ M.picker = function(opts)
     attach_mappings = function(prompt_bufnr, _)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
-        local selection = action_state.get_selected_entry()
-        local host = ''
-        if selection == nil then
-          host = action_state.get_current_line()
-        else
-          host = selection[1]
-        end
+        local host = M.get_user_sel_host()
         vim.cmd.tabnew()
         vim.fn.termopen('ssh ' .. host)
         if (M.config.auto_rename_tab) then
           M.rename_tab(host)
         end
+        vim.schedule(function()
+          vim.cmd.startinsert()
+        end)
+      end)
+      actions.select_vertical:replace(function()
+        actions.close(prompt_bufnr)
+        local host = M.get_user_sel_host()
+        vim.cmd('vsplit term://ssh ' .. host)
         vim.schedule(function()
           vim.cmd.startinsert()
         end)
