@@ -98,6 +98,26 @@ M.get_user_sel_host = function()
   return host
 end
 
+M.open_in_new_tab = function()
+  local host = M.get_user_sel_host()
+  vim.cmd.tabnew()
+  vim.fn.termopen('ssh ' .. host)
+  if (M.config.auto_rename_tab) then
+    M.rename_tab(host)
+  end
+  vim.schedule(function()
+    vim.cmd.startinsert()
+  end)
+end
+
+M.open_in_new_split = function(split_cmd)
+  local host = M.get_user_sel_host()
+  vim.cmd(split_cmd .. ' term://ssh ' .. host)
+  vim.schedule(function()
+    vim.cmd.startinsert()
+  end)
+end
+
 M.picker = function(opts)
   opts = opts or {}
 
@@ -107,34 +127,27 @@ M.picker = function(opts)
       results = M.parse_hosts()
     }),
     sorter = tconf.generic_sorter(opts),
+    -- Default action and tab action both open in a new tab
     attach_mappings = function(prompt_bufnr, _)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
-        local host = M.get_user_sel_host()
-        vim.cmd.tabnew()
-        vim.fn.termopen('ssh ' .. host)
-        if (M.config.auto_rename_tab) then
-          M.rename_tab(host)
-        end
-        vim.schedule(function()
-          vim.cmd.startinsert()
-        end)
+        M.open_in_new_tab()
       end)
+      actions.select_tab:replace(function()
+        actions.close(prompt_bufnr)
+        M.open_in_new_tab()
+      end)
+
+      -- Open in a horizontal split
       actions.select_horizontal:replace(function()
         actions.close(prompt_bufnr)
-        local host = M.get_user_sel_host()
-        vim.cmd('split term://ssh ' .. host)
-        vim.schedule(function()
-          vim.cmd.startinsert()
-        end)
+        M.open_in_new_split('split')
       end)
+
+      -- Open in a vertical split
       actions.select_vertical:replace(function()
         actions.close(prompt_bufnr)
-        local host = M.get_user_sel_host()
-        vim.cmd('vsplit term://ssh ' .. host)
-        vim.schedule(function()
-          vim.cmd.startinsert()
-        end)
+        M.open_in_new_split('vsplit')
       end)
       return true
     end,
