@@ -11,6 +11,7 @@ TODO: gif demo
 ## Dependencies
 
 - [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
+- ssh
 
 
 ## Installation
@@ -21,6 +22,9 @@ TODO: gif demo
 {
   'thiru/telescope-ssh.nvim',
   depedencies = {'nvim-telescope/telescope.nvim'},
+  config = function()
+    require('telescope').load_extension('ssh')
+  end
 }
 ```
 
@@ -29,4 +33,6 @@ TODO: gif demo
 
 ```lua
 :Telescope ssh
+-- OR:
+:TelescopeSsh
 ```
