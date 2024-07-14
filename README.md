@@ -39,8 +39,17 @@ TODO: gif demo
 :Telescope ssh
 ```
 
-Or:
+Or,
 
 ```lua
 :TelescopeSsh
 ```
+
+This will start Neovims terminal emulator so the current buffer must be unmodified.
+You can also use Telescope's alternative actions to open the SSH connection in a new:
+
+- tab (`<C-t>`)
+- horizontal split (`<C-x>`)
+- vertical split (`<C-v>`)
+
+The above bindings are Telescope defaults.
