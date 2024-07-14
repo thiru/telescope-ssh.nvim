@@ -3,7 +3,6 @@ local actions = require('telescope.actions')
 local conf = require('telescope.config').values
 local finders = require('telescope.finders')
 local pickers = require('telescope.pickers')
-local themes = require("telescope.themes")
 local u = require('ssh.utils')
 
 local M = {
@@ -17,9 +16,7 @@ M.setup = function(opts)
 
   vim.api.nvim_create_user_command(
     'TelescopeSsh',
-    function ()
-      M.picker(themes.get_dropdown({}))
-    end,
+    M.picker,
     {bang = true,
      desc = 'Open Telescope SSH picker'})
 end
