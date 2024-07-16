@@ -4,8 +4,6 @@ A [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) extension t
 
 The list of hosts is parsed from **~/.ssh/config** and **~/.ssh/known_hosts**.
 
-TODO: gif demo
-
 
 ## Dependencies
 
