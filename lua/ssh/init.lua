@@ -108,10 +108,7 @@ M.open_in_current_buf = function()
   local terminal_job_id = vim.fn.getbufvar(vim.fn.bufnr(), 'terminal_job_id')
 
   if type(terminal_job_id) == 'number' then
-    vim.schedule(function()
-      local keys = vim.api.nvim_replace_termcodes('ssh "' .. host .. '"<CR>', true, true, true)
-      vim.api.nvim_feedkeys(keys, 'n', false)
-    end)
+    vim.api.nvim_chan_send(terminal_job_id, 'ssh "' .. host .. '"\r')
   else
     -- NOTE: this will fail if the buffer is modified
     vim.fn.termopen('ssh ' .. host)
