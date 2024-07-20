@@ -76,13 +76,17 @@ M.parse_hosts = function()
   return hosts
 end
 
-M.rename_buf = function(name)
-  -- Adding spaces around name to avoid collision with a path which may exist locally
-  local safe_name = ' ' .. name .. ' '
+M.rename_tab_or_buf = function(name)
+  if vim.g.loaded_taboo == 1 then
+    vim.cmd('TabooRename ' .. name)
+  else
+    -- Adding spaces around name to avoid collision with a path which may exist locally
+    local safe_name = ' ' .. name .. ' '
 
-  -- Intentionally suppressing rename error. This usually happens when a buffer with the same name
-  -- exists. So, if it fails we just keep the default name, which seems good enough.
-  pcall(function() vim.api.nvim_buf_set_name(0, safe_name) end)
+    -- Intentionally suppressing rename error. This usually happens when a buffer with the same name
+    -- exists. So, if it fails we just keep the default name, which seems good enough.
+    pcall(function() vim.api.nvim_buf_set_name(0, safe_name) end)
+  end
 end
 
 M.get_user_sel_host = function()
@@ -114,7 +118,7 @@ M.open_in_current_buf = function()
   end
 
   if (M.config.auto_rename_buf) then
-    M.rename_buf(host)
+    M.rename_tab_or_buf(host)
   end
 
   vim.schedule(function()
@@ -129,7 +133,7 @@ M.open_in_new_tab = function()
   vim.fn.termopen('ssh ' .. host)
 
   if (M.config.auto_rename_buf) then
-    M.rename_buf(host)
+    M.rename_tab_or_buf(host)
   end
 
   vim.schedule(function()
