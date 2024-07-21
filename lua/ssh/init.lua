@@ -8,8 +8,13 @@ local u = require('ssh.utils')
 
 local M = {}
 
+M.state = {
+  reconnect_script_path = vim.fs.normalize(vim.fs.dirname(debug.getinfo(1).short_src) .. '/../../scripts/reconnect.sh')
+}
+
 M.config = {
   auto_rename_buf = true,
+  auto_reconnect = true,
 }
 
 M.setup = function(opts)
@@ -102,45 +107,40 @@ M.get_user_sel_host = function()
   return host
 end
 
-M.open_in_current_buf = function()
+M.open_ssh_terminal = function(target)
   local host = M.get_user_sel_host()
+  local cmd = M.config.auto_reconnect
+                and ('sh ' .. M.state.reconnect_script_path .. ' "' .. host .. '"')
+                or ('ssh "' .. host .. '"')
 
-  local terminal_job_id = vim.fn.getbufvar(vim.fn.bufnr(), 'terminal_job_id')
-
-  if type(terminal_job_id) == 'number' then
-    vim.api.nvim_chan_send(terminal_job_id, 'ssh "' .. host .. '"\r')
+  -- Open in current buffer
+  if target == 'this' then
+    local terminal_job_id = vim.fn.getbufvar(vim.fn.bufnr(), 'terminal_job_id')
+    -- Use existing terminal if already running here
+    if type(terminal_job_id) == 'number' then
+      -- Not auto-reconnecting SSH session here since it's easy enough to reconnect by running the
+      -- last command.
+      vim.api.nvim_chan_send(terminal_job_id, 'ssh "' .. host .. '"\r')
+    else
+      if (M.config.auto_rename_buf) then
+        M.rename_tab_or_buf(host)
+      end
+      vim.fn.termopen(cmd)
+    end
+  -- Open in new tab
+  elseif target == 'tab' then
+    vim.cmd.tabnew()
+    if (M.config.auto_rename_buf) then
+      M.rename_tab_or_buf(host)
+    end
+    vim.fn.termopen(cmd)
+  -- Open in a split
   else
-    -- NOTE: this will fail if the buffer is modified
-    vim.fn.termopen('ssh ' .. host)
+    vim.cmd(target)
+    vim.cmd.enew()
+    vim.fn.termopen(cmd)
   end
 
-  if (M.config.auto_rename_buf) then
-    M.rename_tab_or_buf(host)
-  end
-
-  vim.schedule(function()
-    vim.cmd.startinsert()
-  end)
-end
-
-M.open_in_new_tab = function()
-  local host = M.get_user_sel_host()
-
-  vim.cmd.tabnew()
-  vim.fn.termopen('ssh ' .. host)
-
-  if (M.config.auto_rename_buf) then
-    M.rename_tab_or_buf(host)
-  end
-
-  vim.schedule(function()
-    vim.cmd.startinsert()
-  end)
-end
-
-M.open_in_new_split = function(split_cmd)
-  local host = M.get_user_sel_host()
-  vim.cmd(split_cmd .. ' term://ssh ' .. host)
   vim.schedule(function()
     vim.cmd.startinsert()
   end)
@@ -159,25 +159,25 @@ M.picker = function(opts)
       -- Open in the current buffer
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
-        M.open_in_current_buf()
+        M.open_ssh_terminal('this')
       end)
 
       -- Open in a new tab
       actions.select_tab:replace(function()
         actions.close(prompt_bufnr)
-        M.open_in_new_tab()
+        M.open_ssh_terminal('tab')
       end)
 
       -- Open in a horizontal split
       actions.select_horizontal:replace(function()
         actions.close(prompt_bufnr)
-        M.open_in_new_split('split')
+        M.open_ssh_terminal('split')
       end)
 
       -- Open in a vertical split
       actions.select_vertical:replace(function()
         actions.close(prompt_bufnr)
-        M.open_in_new_split('vsplit')
+        M.open_ssh_terminal('vsplit')
       end)
       return true
     end,

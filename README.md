@@ -35,13 +35,15 @@ Optional:
 
 ## Config
 
-Here's an example of modifying the config for lazy.nvim:
+Example config with default settings:
 
 ```lua
 config = function()
   require('ssh').setup({
+    -- Whether to automatically reconnect SSH connections disconnected with a non-zero exit code.
+    auto_reconnect = true,
     -- Whether to automically rename the buffer the connection is made on to the hostname
-    auto_rename_buf = true
+    auto_rename_buf = true,
   })
 end
 ```
