@@ -128,23 +128,21 @@ M.open_ssh_terminal = function(target)
       -- last command.
       vim.api.nvim_chan_send(terminal_job_id, 'ssh "' .. host .. '"\r')
     else
-      if (M.config.auto_rename_buf) then
-        M.rename_tab_or_buf(host)
-      end
       vim.fn.termopen(cmd)
     end
   -- Open in new tab
   elseif target == 'tab' then
     vim.cmd.tabnew()
-    if (M.config.auto_rename_buf) then
-      M.rename_tab_or_buf(host)
-    end
     vim.fn.termopen(cmd)
   -- Open in a split
   else
     vim.cmd(target)
     vim.cmd.enew()
     vim.fn.termopen(cmd)
+  end
+
+  if (M.config.auto_rename_buf) then
+    M.rename_tab_or_buf(host)
   end
 
   vim.schedule(function()
