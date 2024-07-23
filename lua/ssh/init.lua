@@ -92,6 +92,12 @@ M.rename_tab_or_buf = function(name)
     -- exists. So, if it fails we just keep the default name, which seems good enough.
     pcall(function() vim.api.nvim_buf_set_name(0, safe_name) end)
   end
+
+  -- Nvtmux plugin uses this var to display window title
+  vim.api.nvim_buf_set_var(0, 'tab_title', name)
+
+  -- Set window title
+  vim.opt.titlestring = name
 end
 
 M.get_user_sel_host = function()
